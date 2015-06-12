@@ -2,6 +2,8 @@ package me.jefferey.imgur.ui.gallery;
 
 import android.app.Fragment;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +13,8 @@ import com.google.gson.Gson;
 
 import java.util.List;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import me.jefferey.imgur.R;
 import me.jefferey.imgur.api.ImgurService;
 import me.jefferey.imgur.api.managers.GalleryManager;
@@ -26,20 +30,38 @@ public class ImageListFragment extends Fragment {
         return new ImageListFragment();
     }
 
+    @InjectView(R.id.ImageListFragment_recycler_view)
+    RecyclerView mImageRecyclerView;
+
+
     private GalleryManager mGalleryManager;
+    private ImageListAdapter mImageListAdapter;
 
     public ImageListFragment() { }
 
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mGalleryManager = new GalleryManager(getImgurService());
         mGalleryManager.getObserver().subscribe(mGalleryObserver);
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        mImageListAdapter = new ImageListAdapter(inflater, mGalleryManager.getCurrentImages());
         mGalleryManager.fetchImages();
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         super.onCreateView(inflater, parent, savedInstanceState);
-        return inflater.inflate(R.layout.fragment_image_list, parent, false);
+        View content = inflater.inflate(R.layout.fragment_image_list, parent, false);
+        ButterKnife.inject(this, content);
+        mImageRecyclerView.setLayoutManager(new LinearLayoutManager(parent.getContext()));
+        mImageRecyclerView.setAdapter(mImageListAdapter);
+        return content;
     }
 
     public String getTitle() {
@@ -61,10 +83,7 @@ public class ImageListFragment extends Fragment {
 
         @Override
         public void onNext(GalleryManager.GalleryChanged galleryChanged) {
-            List<Image> images = mGalleryManager.getCurrentImages();
-            int length = images.size();
-            Log.v("Images", "Fetched " + length + " images");
-
+            mImageListAdapter.notifyItemRangeInserted(galleryChanged.startPosition, galleryChanged.numAdded);
         }
     };
 
