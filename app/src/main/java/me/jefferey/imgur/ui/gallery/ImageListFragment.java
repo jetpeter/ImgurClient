@@ -23,6 +23,8 @@ import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
 import retrofit.converter.GsonConverter;
 import rx.Observer;
+import rx.Subscriber;
+import rx.Subscription;
 
 public class ImageListFragment extends Fragment {
 
@@ -33,8 +35,8 @@ public class ImageListFragment extends Fragment {
     @InjectView(R.id.ImageListFragment_recycler_view)
     RecyclerView mImageRecyclerView;
 
-
     private GalleryManager mGalleryManager;
+    private Subscription mGallerySubscription;
     private ImageListAdapter mImageListAdapter;
 
     public ImageListFragment() { }
@@ -43,7 +45,7 @@ public class ImageListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mGalleryManager = new GalleryManager(getImgurService());
-        mGalleryManager.getObserver().subscribe(mGalleryObserver);
+        mGallerySubscription = mGalleryManager.getObserver().subscribe(mGalleryObserver);
         LayoutInflater inflater = LayoutInflater.from(getActivity());
         mImageListAdapter = new ImageListAdapter(inflater, mGalleryManager.getCurrentImages());
         mGalleryManager.fetchImages();
@@ -52,6 +54,7 @@ public class ImageListFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mGallerySubscription.unsubscribe();
     }
 
     @Override
