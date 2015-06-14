@@ -37,7 +37,7 @@ public class ImgurModule {
                 .setEndpoint(API_URL)
                 .setRequestInterceptor(authInterceptor)
                 .setConverter(new GsonConverter(gson))
-                //.setLogLevel(RestAdapter.LogLevel.FULL)
+                .setLogLevel(RestAdapter.LogLevel.FULL)
                 .build();
     }
 

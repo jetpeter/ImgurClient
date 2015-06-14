@@ -8,6 +8,15 @@ package me.jefferey.imgur.models;
 @SuppressWarnings("unused")
 public class Image {
 
+    public static final String BASE_IMAGE_ADDRESS = "http://i.imgur.com/";
+
+    public static final char SMALL_SQUARE = 's';
+    public static final char BIG_SQUARE = 'b';
+    public static final char SMALL_THUMBNAIL = 't';
+    public static final char MEDIUM_THUMBNAIL = 'm';
+    public static final char LARGE_THUMBNAIL = 'l';
+    public static final char HUGE_THUMBNAIL = 'h';
+
     private String id;
     private String title;
     private String description;
@@ -152,6 +161,10 @@ public class Image {
 
     public boolean isAlbum() {
         return is_album;
+    }
+
+    public String getThumbnailSize(char size) {
+        return BASE_IMAGE_ADDRESS + id + size + ".jpg";
     }
 }
 

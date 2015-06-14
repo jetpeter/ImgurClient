@@ -21,10 +21,13 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.Imag
 
     private final LayoutInflater mInflater;
     private final List<Image> mImageList;
+    private final CacheWarmer mCacheWarmer;
 
     public ImageListAdapter(@NonNull LayoutInflater inflater, @NonNull List<Image> imageList) {
         mInflater = inflater;
         mImageList = imageList;
+        Picasso picasso = Picasso.with(inflater.getContext());
+        mCacheWarmer = new CacheWarmer(picasso);
     }
 
     @Override
@@ -38,8 +41,9 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.Imag
         Image image = mImageList.get(position);
         holder.messageView.setText(image.getDescription());
         Picasso.with(holder.imageView.getContext())
-                .load(image.getLink())
+                .load(image.getThumbnailSize(Image.LARGE_THUMBNAIL))
                 .into(holder.imageView);
+        mCacheWarmer.setCurrentPosition(position);
     }
 
     @Override
@@ -55,6 +59,45 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.Imag
         public ImageViewHolder(View itemView) {
             super(itemView);
             ButterKnife.inject(this, itemView);
+        }
+    }
+
+    /**
+     * Updated with the current position every time a row is binded this class decides if it should
+     * fetch an image to warm up the cache.
+     */
+    private class CacheWarmer {
+
+        final Picasso picasso;
+        int lastPosition = 0;
+
+        public CacheWarmer(Picasso picasso) {
+            this.picasso = picasso;
+        }
+
+        public void setCurrentPosition(int currentPosition) {
+            if (currentPosition > lastPosition) {
+                fetchDown(currentPosition);
+            } else {
+                fetchUp(currentPosition);
+            }
+            lastPosition = currentPosition;
+        }
+
+        private void fetchUp(int currentPosition) {
+            int nextFetchPosition = currentPosition - 1;
+            if (nextFetchPosition >= 0 && getItemCount() > 0) {
+                Image image = mImageList.get(nextFetchPosition);
+                picasso.load(image.getThumbnailSize(Image.LARGE_THUMBNAIL)).fetch();
+            }
+        }
+
+        private void fetchDown(int currentPosition) {
+            int nextFetchPosition = currentPosition + 1;
+            if (nextFetchPosition < getItemCount() && getItemCount() > 0) {
+                Image image = mImageList.get(nextFetchPosition);
+                picasso.load(image.getThumbnailSize(Image.LARGE_THUMBNAIL)).fetch();
+            }
         }
     }
 }
