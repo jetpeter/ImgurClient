@@ -37,6 +37,7 @@ public class ImgurModule {
                 .setEndpoint(API_URL)
                 .setRequestInterceptor(authInterceptor)
                 .setConverter(new GsonConverter(gson))
+                //.setLogLevel(RestAdapter.LogLevel.FULL)
                 .build();
     }
 
@@ -49,5 +50,4 @@ public class ImgurModule {
     GalleryManager provideGalleryManager(ImgurService imgurService) {
         return new GalleryManager(imgurService);
     }
-
 }

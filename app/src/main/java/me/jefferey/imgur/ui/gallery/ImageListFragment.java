@@ -29,7 +29,7 @@ public class ImageListFragment extends Fragment {
     RecyclerView mImageRecyclerView;
 
     @Inject
-    private GalleryManager mGalleryManager;
+    GalleryManager mGalleryManager;
 
     private Subscription mGallerySubscription;
     private ImageListAdapter mImageListAdapter;
