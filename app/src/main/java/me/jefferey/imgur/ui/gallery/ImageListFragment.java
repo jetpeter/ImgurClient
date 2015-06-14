@@ -1,29 +1,22 @@
 package me.jefferey.imgur.ui.gallery;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.gson.Gson;
-
-import java.util.List;
+import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import me.jefferey.imgur.ImgurApplication;
 import me.jefferey.imgur.R;
-import me.jefferey.imgur.api.ImgurService;
 import me.jefferey.imgur.api.managers.GalleryManager;
-import me.jefferey.imgur.models.Image;
-import retrofit.RequestInterceptor;
-import retrofit.RestAdapter;
-import retrofit.converter.GsonConverter;
 import rx.Observer;
-import rx.Subscriber;
 import rx.Subscription;
 
 public class ImageListFragment extends Fragment {
@@ -35,7 +28,9 @@ public class ImageListFragment extends Fragment {
     @InjectView(R.id.ImageListFragment_recycler_view)
     RecyclerView mImageRecyclerView;
 
+    @Inject
     private GalleryManager mGalleryManager;
+
     private Subscription mGallerySubscription;
     private ImageListAdapter mImageListAdapter;
 
@@ -44,9 +39,12 @@ public class ImageListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mGalleryManager = new GalleryManager(getImgurService());
+        Activity activity = getActivity();
+        ImgurApplication application = (ImgurApplication) activity.getApplication();
+        application.getMainComponent().inject(this);
+        LayoutInflater inflater = LayoutInflater.from(activity);
+
         mGallerySubscription = mGalleryManager.getObserver().subscribe(mGalleryObserver);
-        LayoutInflater inflater = LayoutInflater.from(getActivity());
         mImageListAdapter = new ImageListAdapter(inflater, mGalleryManager.getCurrentImages());
         mGalleryManager.fetchImages();
     }
@@ -89,20 +87,4 @@ public class ImageListFragment extends Fragment {
             mImageListAdapter.notifyItemRangeInserted(galleryChanged.startPosition, galleryChanged.numAdded);
         }
     };
-
-    public ImgurService getImgurService() {
-        RequestInterceptor requestInterceptor = new RequestInterceptor() {
-            @Override
-            public void intercept(RequestFacade request) {
-                request.addHeader("Authorization", "Client-ID 2427d8c3e656499");
-            }
-        };
-
-        RestAdapter restAdapter = new RestAdapter.Builder()
-                .setEndpoint("https://api.imgur.com")
-                .setRequestInterceptor(requestInterceptor)
-                .setConverter(new GsonConverter(new Gson()))
-                .build();
-        return restAdapter.create(ImgurService.class);
-    }
 }
