@@ -9,20 +9,32 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
         android:padding="10dp">
-
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:scaleType="centerCrop"
-            android:id="@+id/ImageList_image_view" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:id="@+id/ImageList_description" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:scaleType="centerCrop"
+            android:id="@+id/ImageList_image_view" />
     </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/ImageList_score"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/black_transparent"
+        android:textColor="@color/white"
+        android:text="score 5000"
+        android:layout_margin="15dp"
+        android:padding="10dp"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_gravity="bottom|end" />
 
 </android.support.v7.widget.CardView>

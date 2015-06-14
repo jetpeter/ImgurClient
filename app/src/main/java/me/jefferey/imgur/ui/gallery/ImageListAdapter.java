@@ -39,7 +39,9 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.Imag
     @Override
     public void onBindViewHolder(ImageViewHolder holder, int position) {
         Image image = mImageList.get(position);
-        holder.messageView.setText(image.getDescription());
+        holder.messageView.setText(image.getTitle());
+        String pointsStr = holder.scoreView.getResources().getString(R.string.ImageList_points, image.getScore());
+        holder.scoreView.setText(pointsStr);
         Picasso.with(holder.imageView.getContext())
                 .load(image.getThumbnailSize(Image.LARGE_THUMBNAIL))
                 .into(holder.imageView);
@@ -55,6 +57,7 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.Imag
 
         @InjectView(R.id.ImageList_description) TextView messageView;
         @InjectView(R.id.ImageList_image_view) ImageView imageView;
+        @InjectView(R.id.ImageList_score) TextView scoreView;
 
         public ImageViewHolder(View itemView) {
             super(itemView);
