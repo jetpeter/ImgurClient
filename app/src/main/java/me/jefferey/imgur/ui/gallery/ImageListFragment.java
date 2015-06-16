@@ -19,6 +19,11 @@ import me.jefferey.imgur.api.managers.GalleryManager;
 import rx.Observer;
 import rx.Subscription;
 
+/**
+ * Fragment that displays the current list of Images stored in the GalleryManager.
+ *
+ * The GalleryManager is Injected from the Dagger MainComponent
+ */
 public class ImageListFragment extends Fragment {
 
     public static ImageListFragment newInstance() {
@@ -46,7 +51,7 @@ public class ImageListFragment extends Fragment {
 
         mGallerySubscription = mGalleryManager.getObserver().subscribe(mGalleryObserver);
         mImageListAdapter = new ImageListAdapter(inflater, mGalleryManager.getCurrentImages());
-        mGalleryManager.fetchImages();
+        mGalleryManager.fetchMoreImages();
     }
 
     @Override

@@ -20,9 +20,26 @@ import rx.subjects.PublishSubject;
  */
 public class GalleryManager {
 
+    public static final String SECTION_HOT = "hot";
+    public static final String SECTION_TOP = "top";
+    public static final String SECTION_USER = "user";
+
+    public static final String SORT_VIRAL = "viral";
+    public static final String SORT_TOP = "top";
+    public static final String SORT_TIME = "time";
+    public static final String SORT_RISING = "rising"; //(only available with user section)
+
     private final ImgurService mImgurService;
     private final List<Image> mCurrentGalleryList = new ArrayList<>();
     private final PublishSubject<GalleryChanged> onListChanged = PublishSubject.create();
+
+    @NonNull
+    public String mCurrentSection = SECTION_HOT;
+
+    @NonNull
+    public String mCurrentSort = SORT_VIRAL;
+
+    public int mCurrentPage = 0;
 
     public GalleryManager(@NonNull ImgurService imgurService) {
         mImgurService = imgurService;
@@ -50,11 +67,32 @@ public class GalleryManager {
         return mCurrentGalleryList;
     }
 
-    public void fetchImages() {
-        Observable<Gallery> galleryObserver = mImgurService.getGallery();
+    /**
+     * Change the type of gallery to show the user
+     *
+     * The gallery will be cleared and more images will be fetched. Observers will be notified
+     * of both
+     *
+     * @param section One of {SECTION_HOT, SECTION_TOP, SECTION_USER}
+     * @param sort One of {SORT_VIRAL, SORT_TOP, SORT_TIME, SORT_USER}
+     */
+    public void updateGalleryParams(@NonNull String section, @NonNull String sort) {
+        mCurrentPage = 0;
+        mCurrentSection = section;
+        mCurrentSort = sort;
+        clearImages();
+        fetchMoreImages();
+    }
+
+    /**
+     * Fetch the next page of images
+     */
+    public void fetchMoreImages() {
+        Observable<Gallery> galleryObserver = mImgurService.getGallery(mCurrentSection, mCurrentSort, mCurrentPage, true);
         galleryObserver.subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(mGalleryRequestObserver);
+        mCurrentPage++;
     }
 
     public Observable<GalleryChanged> getObserver() {
