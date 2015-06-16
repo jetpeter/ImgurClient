@@ -40,6 +40,7 @@ public class Image {
     private String webm;
     private String mp4;
     private String link;
+    private String cover;
     private boolean looping;
     private int comment_count;
     private int ups;
@@ -163,8 +164,16 @@ public class Image {
         return is_album;
     }
 
+    public boolean getCover() {
+        return is_album;
+    }
+
     public String getThumbnailSize(char size) {
-        return BASE_IMAGE_ADDRESS + id + size + ".jpg";
+        String thumbnailId = id;
+        if (is_album) {
+            thumbnailId = cover;
+        }
+        return BASE_IMAGE_ADDRESS + thumbnailId + size + ".jpg";
     }
 }
 
